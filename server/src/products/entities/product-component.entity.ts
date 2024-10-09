@@ -14,10 +14,10 @@ export class ProductComponent {
 	quantity: number
 
 	@ManyToOne(() => Product, product => product.components)
-	@JoinColumn({ name: 'product_id' }) // JoinColumn для определения внешнего ключа
+	@JoinColumn({ name: 'product_id' })
 	product: Product
 
 	@ManyToOne(() => Component, component => component.products)
-	@JoinColumn({ name: 'component_id' }) // JoinColumn для определения внешнего ключа
+	@JoinColumn({ name: 'component_id' })
 	component: Component
 }

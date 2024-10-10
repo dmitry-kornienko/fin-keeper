@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
 import { randomUUID } from 'crypto'
@@ -9,7 +10,8 @@ import { User } from './entities/user.entity'
 @Injectable()
 export class UsersService {
 	constructor(
-		@InjectRepository(User) private readonly userRepository: Repository<User>
+		@InjectRepository(User) private readonly userRepository: Repository<User>,
+		private readonly jwtService: JwtService
 	) {}
 
 	async create(createUserDto: CreateUserDto) {
@@ -30,10 +32,12 @@ export class UsersService {
 			activationLink,
 		})
 
-		return { user }
+		const token = this.jwtService.sign({ email: createUserDto.email })
+
+		return { user, token }
 	}
 
-	// findOne(id: number) {
-	// 	return `This action returns a #${id} user`
-	// }
+	async findOne(email: string) {
+		return await this.userRepository.findOne({ where: { email } })
+	}
 }

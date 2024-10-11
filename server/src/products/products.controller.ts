@@ -6,7 +6,12 @@ import {
 	Param,
 	Patch,
 	Post,
+	Req,
+	UseGuards,
+	UsePipes,
+	ValidationPipe,
 } from '@nestjs/common'
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { CreateProductDto } from './dto/create-product.dto'
 import { UpdateProductDto } from './dto/update-product.dto'
 import { ProductsService } from './products.service'
@@ -16,8 +21,10 @@ export class ProductsController {
 	constructor(private readonly productsService: ProductsService) {}
 
 	@Post()
-	create(@Body() createProductDto: CreateProductDto) {
-		return this.productsService.create(createProductDto)
+	@UseGuards(JwtAuthGuard)
+	@UsePipes(new ValidationPipe())
+	create(@Body() createProductDto: CreateProductDto, @Req() req) {
+		return this.productsService.create(createProductDto, +req.user.id)
 	}
 
 	@Get()

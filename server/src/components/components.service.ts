@@ -58,12 +58,14 @@ export class ComponentsService {
 		const component = await this.componentRepository.findOne({ where: { id } })
 		if (!component) throw new NotFoundException('Component not found')
 
-		const componentWithSameSku = await this.componentRepository.findBy({
-			user: { id: user_id },
-			sku: updateComponentDto.sku,
-		})
-		if (componentWithSameSku.length)
-			throw new BadRequestException('Component with this sku already exist')
+		if (updateComponentDto.sku) {
+			const componentWithSameSku = await this.componentRepository.findBy({
+				user: { id: user_id },
+				sku: updateComponentDto.sku,
+			})
+			if (componentWithSameSku.length)
+				throw new BadRequestException('Component with this sku already exist')
+		}
 
 		return await this.componentRepository.update(id, updateComponentDto)
 	}

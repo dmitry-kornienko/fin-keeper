@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Component } from 'src/components/entities/component.entity'
 import { Repository } from 'typeorm'
@@ -67,15 +71,67 @@ export class ProductsService {
 		})
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} product`
+	async findOne(id: number) {
+		const product = await this.productRepository.findOne({
+			where: {
+				id,
+			},
+			relations: ['components', 'components.component'],
+		})
+		if (!product) throw new NotFoundException('Product not found')
+
+		return {
+			...product,
+			components: product.components.map(component => {
+				const { product_id, component_id, ...rest } = component
+				return rest
+			}),
+		}
 	}
 
-	update(id: number, updateProductDto: UpdateProductDto) {
-		return `This action updates a #${id} product`
+	async update(
+		id: number,
+		updateProductDto: UpdateProductDto,
+		user_id: number
+	) {
+		const product = await this.productRepository.findOne({
+			where: { id },
+			relations: ['components'],
+		})
+		if (!product) throw new NotFoundException('Product not found')
+
+		if (updateProductDto.sku) {
+			const productWithSameSKU = await this.productRepository.findOneBy({
+				user: { id: user_id },
+				sku: updateProductDto.sku,
+			})
+			if (productWithSameSKU)
+				throw new BadRequestException('Component with this sku already exist')
+		}
+
+		if (updateProductDto.components) {
+			await this.productComponentRepository.delete({ product: { id } })
+
+			const productComponents = updateProductDto.components.map(item => {
+				const productComponent = new ProductComponent()
+				productComponent.product = product
+				productComponent.component = { id: item.id } as Component
+				productComponent.quantity = item.quantity
+				return productComponent
+			})
+			await this.productComponentRepository.save(productComponents)
+		}
+
+		const { components, ...rest } = updateProductDto
+		return await this.productRepository.update(id, rest)
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} product`
+	async remove(id: number) {
+		const product = await this.productRepository.findOne({ where: { id } })
+		if (!product) throw new NotFoundException('Product not found')
+
+		await this.productComponentRepository.delete({ product: { id } })
+
+		return await this.productRepository.delete(id)
 	}
 }

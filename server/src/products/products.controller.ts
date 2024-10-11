@@ -6,6 +6,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	Req,
 	UseGuards,
 	UsePipes,
@@ -29,8 +30,12 @@ export class ProductsController {
 
 	@Get()
 	@UseGuards(JwtAuthGuard)
-	findAll(@Req() req) {
-		return this.productsService.findAll(+req.user.id)
+	findAll(
+		@Req() req,
+		@Query('page') page: number = 1,
+		@Query('limit') limit: number = 20
+	) {
+		return this.productsService.findAll(+req.user.id, +page, +limit)
 	}
 
 	@Get(':id')

@@ -54,10 +54,15 @@ export class ProductsService {
 		return newProduct
 	}
 
-	async findAll(id: number) {
+	async findAll(id: number, page: number, limit: number) {
 		const products = await this.productRepository.find({
 			where: { user: { id } },
 			relations: ['components', 'components.component'],
+			order: {
+				createdAt: 'DESC',
+			},
+			take: limit,
+			skip: (page - 1) * limit,
 		})
 
 		return products.map(product => {

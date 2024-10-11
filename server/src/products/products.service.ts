@@ -50,8 +50,21 @@ export class ProductsService {
 		return newProduct
 	}
 
-	findAll() {
-		return `This action returns all products`
+	async findAll(id: number) {
+		const products = await this.productRepository.find({
+			where: { user: { id } },
+			relations: ['components', 'components.component'],
+		})
+
+		return products.map(product => {
+			return {
+				...product,
+				components: product.components.map(component => {
+					const { product_id, component_id, ...rest } = component
+					return rest
+				}),
+			}
+		})
 	}
 
 	findOne(id: number) {

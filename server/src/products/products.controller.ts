@@ -28,8 +28,9 @@ export class ProductsController {
 	}
 
 	@Get()
-	findAll() {
-		return this.productsService.findAll()
+	@UseGuards(JwtAuthGuard)
+	findAll(@Req() req) {
+		return this.productsService.findAll(+req.user.id)
 	}
 
 	@Get(':id')

@@ -6,7 +6,12 @@ import {
 	Param,
 	Patch,
 	Post,
+	Req,
+	UseGuards,
+	UsePipes,
+	ValidationPipe,
 } from '@nestjs/common'
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { ComponentsService } from './components.service'
 import { CreateComponentDto } from './dto/create-component.dto'
 import { UpdateComponentDto } from './dto/update-component.dto'
@@ -16,29 +21,37 @@ export class ComponentsController {
 	constructor(private readonly componentsService: ComponentsService) {}
 
 	@Post()
-	create(@Body() createComponentDto: CreateComponentDto) {
-		return this.componentsService.create(createComponentDto)
+	@UseGuards(JwtAuthGuard)
+	@UsePipes(new ValidationPipe())
+	create(@Body() createComponentDto: CreateComponentDto, @Req() req) {
+		return this.componentsService.create(createComponentDto, +req.user.id)
 	}
 
 	@Get()
-	findAll() {
-		return this.componentsService.findAll()
+	@UseGuards(JwtAuthGuard)
+	findAll(@Req() req) {
+		return this.componentsService.findAll(req.user.id)
 	}
 
 	@Get(':id')
+	@UseGuards(JwtAuthGuard)
 	findOne(@Param('id') id: string) {
 		return this.componentsService.findOne(+id)
 	}
 
 	@Patch(':id')
+	@UseGuards(JwtAuthGuard)
+	@UsePipes(new ValidationPipe())
 	update(
 		@Param('id') id: string,
-		@Body() updateComponentDto: UpdateComponentDto
+		@Body() updateComponentDto: UpdateComponentDto,
+		@Req() req
 	) {
-		return this.componentsService.update(+id, updateComponentDto)
+		return this.componentsService.update(+id, updateComponentDto, +req.user.id)
 	}
 
 	@Delete(':id')
+	@UseGuards(JwtAuthGuard)
 	remove(@Param('id') id: string) {
 		return this.componentsService.remove(+id)
 	}

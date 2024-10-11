@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer'
 import { Component } from 'src/components/entities/component.entity'
 import { Product } from 'src/products/entities/product.entity'
 import {
@@ -18,6 +19,7 @@ export class User {
 	email: string
 
 	@Column()
+	@Exclude()
 	password: string
 
 	@Column()

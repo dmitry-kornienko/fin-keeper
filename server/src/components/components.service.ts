@@ -34,8 +34,15 @@ export class ComponentsService {
 		return await this.componentRepository.save(newComponent)
 	}
 
-	async findAll(id: number) {
-		return await this.componentRepository.find({ where: { user: { id } } })
+	async findAll(id: number, page: number, limit: number) {
+		return await this.componentRepository.find({
+			where: { user: { id } },
+			order: {
+				createdAt: 'DESC',
+			},
+			take: limit,
+			skip: (page - 1) * limit,
+		})
 	}
 
 	async findOne(id: number) {

@@ -6,12 +6,14 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	Req,
 	UseGuards,
 	UsePipes,
 	ValidationPipe,
 } from '@nestjs/common'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
+import { AuthorGuard } from 'src/guard/author.guard'
 import { ComponentsService } from './components.service'
 import { CreateComponentDto } from './dto/create-component.dto'
 import { UpdateComponentDto } from './dto/update-component.dto'
@@ -29,8 +31,12 @@ export class ComponentsController {
 
 	@Get()
 	@UseGuards(JwtAuthGuard)
-	findAll(@Req() req) {
-		return this.componentsService.findAll(req.user.id)
+	findAll(
+		@Req() req,
+		@Query('page') page: number = 1,
+		@Query('limit') limit: number = 20
+	) {
+		return this.componentsService.findAll(req.user.id, +page, +limit)
 	}
 
 	@Get(':id')
@@ -39,8 +45,8 @@ export class ComponentsController {
 		return this.componentsService.findOne(+id)
 	}
 
-	@Patch(':id')
-	@UseGuards(JwtAuthGuard)
+	@Patch(':type/:id')
+	@UseGuards(JwtAuthGuard, AuthorGuard)
 	@UsePipes(new ValidationPipe())
 	update(
 		@Param('id') id: string,
@@ -50,8 +56,8 @@ export class ComponentsController {
 		return this.componentsService.update(+id, updateComponentDto, +req.user.id)
 	}
 
-	@Delete(':id')
-	@UseGuards(JwtAuthGuard)
+	@Delete(':type/:id')
+	@UseGuards(JwtAuthGuard, AuthorGuard)
 	remove(@Param('id') id: string) {
 		return this.componentsService.remove(+id)
 	}

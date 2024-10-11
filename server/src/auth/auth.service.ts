@@ -13,10 +13,12 @@ export class AuthService {
 
 	async validateUser(email: string, password: string) {
 		const user = await this.userService.findOne(email)
-		const passwordIsMatch = await bcrypt.compare(password, user.password)
+		if (user) {
+			const passwordIsMatch = await bcrypt.compare(password, user.password)
 
-		if (user && passwordIsMatch) {
-			return user
+			if (passwordIsMatch) return user
+
+			throw new UnauthorizedException('Bad credentials')
 		}
 
 		throw new UnauthorizedException('Bad credentials')

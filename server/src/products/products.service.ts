@@ -81,7 +81,7 @@ export class ProductsService {
 			where: {
 				id,
 			},
-			relations: ['components', 'components.component'],
+			relations: ['user', 'components', 'components.component'],
 		})
 		if (!product) throw new NotFoundException('Product not found')
 

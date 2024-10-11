@@ -13,6 +13,7 @@ import {
 	ValidationPipe,
 } from '@nestjs/common'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
+import { AuthorGuard } from 'src/guard/author.guard'
 import { CreateProductDto } from './dto/create-product.dto'
 import { UpdateProductDto } from './dto/update-product.dto'
 import { ProductsService } from './products.service'
@@ -44,8 +45,8 @@ export class ProductsController {
 		return this.productsService.findOne(+id)
 	}
 
-	@Patch(':id')
-	@UseGuards(JwtAuthGuard)
+	@Patch(':type/:id')
+	@UseGuards(JwtAuthGuard, AuthorGuard)
 	@UsePipes(new ValidationPipe())
 	update(
 		@Param('id') id: string,
@@ -55,8 +56,8 @@ export class ProductsController {
 		return this.productsService.update(+id, updateProductDto, +req.user.id)
 	}
 
-	@Delete(':id')
-	@UseGuards(JwtAuthGuard)
+	@Delete(':type/:id')
+	@UseGuards(JwtAuthGuard, AuthorGuard)
 	remove(@Param('id') id: string) {
 		return this.productsService.remove(+id)
 	}

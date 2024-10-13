@@ -1,5 +1,7 @@
+import { selectUser } from '@/features/auth/authSlice'
 import { Paths } from '@/paths'
 import { CircleUser } from 'lucide-react'
+import { useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 import { ModeToggle } from './mode-toggle'
 import { Button, buttonVariants } from './ui/button'
@@ -13,7 +15,8 @@ import {
 } from './ui/dropdown-menu'
 
 export const Header = () => {
-	const user = { role: 'admin', bill: 5 }
+	// const user = { role: 'admin', bill: 5 }
+	const user = useSelector(selectUser)
 	const { pathname } = useLocation()
 
 	return (

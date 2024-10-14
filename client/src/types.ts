@@ -20,3 +20,10 @@ export type Product = {
 export type Component = {
 	id: number
 }
+
+export type ErrorWithMessage = {
+	status: number
+	data: {
+		message: string
+	}
+}

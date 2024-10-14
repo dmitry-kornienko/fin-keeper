@@ -9,16 +9,22 @@ type ResponsLoginData = {
 
 export const authApi = api.injectEndpoints({
 	endpoints: builder => ({
-		login: builder.mutation<ResponsLoginData, UserData>({
+		login: builder.mutation<
+			ResponsLoginData,
+			{ email: string; password: string }
+		>({
 			query: UserData => ({
 				url: '/auth/login',
 				method: 'POST',
 				body: UserData,
 			}),
 		}),
-		register: builder.mutation<ResponsLoginData, UserData>({
+		register: builder.mutation<
+			ResponsLoginData,
+			{ email: string; password: string }
+		>({
 			query: UserData => ({
-				url: '/auth/registration',
+				url: '/users',
 				method: 'POST',
 				body: UserData,
 			}),

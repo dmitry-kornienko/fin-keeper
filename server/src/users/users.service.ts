@@ -32,7 +32,13 @@ export class UsersService {
 			activationLink,
 		})
 
-		const token = this.jwtService.sign({ email: createUserDto.email })
+		const token = this.jwtService.sign({
+			id: user.id,
+			email: user.email,
+			bill: user.bill,
+			wb_token: user.wb_token,
+			isActivated: user.isActivated,
+		})
 
 		return { user, token }
 	}

@@ -1,8 +1,8 @@
-import { selectUser } from '@/features/auth/authSlice'
+import { logout, selectUser } from '@/features/auth/authSlice'
 import { Paths } from '@/paths'
 import { CircleUser } from 'lucide-react'
-import { useSelector } from 'react-redux'
-import { Link, useLocation } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ModeToggle } from './mode-toggle'
 import { Button, buttonVariants } from './ui/button'
 import {
@@ -15,9 +15,16 @@ import {
 } from './ui/dropdown-menu'
 
 export const Header = () => {
-	// const user = { role: 'admin', bill: 5 }
 	const user = useSelector(selectUser)
 	const { pathname } = useLocation()
+	const navigate = useNavigate()
+	const dispatch = useDispatch()
+
+	const onLogoutClick = () => {
+		dispatch(logout())
+		localStorage.removeItem('token')
+		navigate('/login')
+	}
 
 	return (
 		<header className='sticky top-0 flex h-14 items-center justify-between gap-4 border-b bg-background/50 backdrop-blur px-4 md:px-6'>
@@ -30,9 +37,9 @@ export const Header = () => {
 			{user && (
 				<nav className='hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6'>
 					<Link
-						to={Paths.warehouse}
+						to={`${Paths.warehouse}/products`}
 						className={`${
-							pathname === '/warehouse'
+							pathname.startsWith('/warehouse')
 								? 'text-foreground'
 								: 'text-muted-foreground'
 						} transition-colors hover:text-foreground`}
@@ -69,6 +76,7 @@ export const Header = () => {
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align='end'>
 							<DropdownMenuLabel>Мой профиль</DropdownMenuLabel>
+							<DropdownMenuLabel>{user.email}</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem>Настройки</DropdownMenuItem>
 							<DropdownMenuItem>
@@ -78,7 +86,15 @@ export const Header = () => {
 								</Button>
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
-							<DropdownMenuItem>Выйти</DropdownMenuItem>
+							<DropdownMenuItem>
+								<Button
+									variant='ghost'
+									onClick={onLogoutClick}
+									className='w-full'
+								>
+									Выйти
+								</Button>
+							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
 				) : (
